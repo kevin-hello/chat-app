@@ -62,24 +62,32 @@ class Start extends React.Component {
             <View style={styles.colors}>
               <TouchableOpacity
                 accessible={true}
+                accessibilityLabel="black background color"
+                accessibilityHint="changes the chat screen background to black"
                 style={styles.black}
                 accessibilityRole="button"
                 onPress={() => this.changeBgColor(this.colors.black)}
               ></TouchableOpacity>
               <TouchableOpacity
                 accessible={true}
+                accessibilityLabel="purple background color"
+                accessibilityHint="changes the chat screen background to purple"
                 style={styles.purple}
                 accessibilityRole="button"
                 onPress={() => this.changeBgColor(this.colors.purple)}
               ></TouchableOpacity>
               <TouchableOpacity
                 accessible={true}
+                accessibilityLabel="gray background color"
+                accessibilityHint="changes the chat screen background to gray"
                 style={styles.gray}
                 accessibilityRole="button"
                 onPress={() => this.changeBgColor(this.colors.gray)}
               ></TouchableOpacity>
               <TouchableOpacity
                 accessible={true}
+                accessibilityLabel="green background color"
+                accessibilityHint="changes the chat screen background to green"
                 style={styles.green}
                 accessibilityRole="button"
                 onPress={() => this.changeBgColor(this.colors.green)}
