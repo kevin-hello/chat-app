@@ -3,7 +3,7 @@ import firebase from "firebase";
 import "firebase/firestore";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 import { View, Platform, KeyboardAvoidingView } from "react-native";
-import { AsyncStorage } from "react-native";
+import { AsyncStorage } from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 
 // firebase config
