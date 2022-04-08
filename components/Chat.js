@@ -51,7 +51,7 @@ export default class Chat extends Component {
       console.log(error.message);
     }
   };
-
+  //save messages to async storage
   async saveMessages() {
     try {
       await AsyncStorage.setItem(
@@ -206,6 +206,7 @@ export default class Chat extends Component {
       return <InputToolbar {...props} />;
     }
   }
+
   render() {
     //passes selected backgroundColor from  Start screen
     let bgColor = this.props.route.params.bgColor;
