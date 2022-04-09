@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import firebase from "firebase";
 import "firebase/firestore";
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 import { View, Platform, KeyboardAvoidingView } from "react-native";
-import { AsyncStorage } from "@react-native-async-storage/async-storage";
+import { AsyncStorage } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 
 // firebase config
@@ -84,6 +84,7 @@ export default class Chat extends Component {
     // checks if app is online
     NetInfo.fetch().then((connection) => {
       if (connection.isConnected) {
+        this.setState({ isConnected: true });
         console.log("online");
         // looks for updates in chat messages collection
         this.unsubscribe = this.referenceChatMessages
@@ -222,6 +223,8 @@ export default class Chat extends Component {
           renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
+          isConnected={this.state.isConnected}
           user={{
             _id: this.state.user._id,
             name: this.state.user.name,
