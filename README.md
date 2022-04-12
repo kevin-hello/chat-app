@@ -6,25 +6,27 @@ A chat app for mobile devices using React Native. The app will provide users wit
 
 #### Key Features
 
-A page where users can enter their name and choose a background color for the chat screen before joining the chat.
-A page displaying the conversation, as well as an input field and submit button.
-The chat must provide users with two additional communication features: sending images and location data.
-Data gets stored online and offline.
+1. A page where users can enter their name and choose a background color for the chat screen before joining the chat.
+2. A page displaying the conversation, as well as an input field and submit button.
+3. he chat must provide users with two additional communication features: sending images and location data.
+4. Data gets stored online and offline.
 
 #### Tools
 
-Node.js,
-React Native,
-Expo,
+- Node.js
+- React Native
+- Expo
+- Gifted Chat
+- Google Firebase
 
 #### Installation
 
-Fork or download this repo directly.
-npm install or yarn install in the terminal to install all dependencies.
+- Fork or download this repo directly.
+- `npm install` or `yarn install` in the terminal to install all dependencies.
 
 #### How to use this app
 
-Download and install the code (see Installation for instruction).
-Install Expo globally npm install --global expo-cli.
-To start the app, run expo start or npm start.
-To run the app on a device, install an emulator or "Expo Go" on your smartphone
+1. Download and install the code (see Installation section for instruction).
+2. Install Expo globally `npm install --global expo-cli` .
+3. To start the app, run `expo start` or `npm start`.
+4. To run the app on your device, install an emulator on your computer or the "Expo Go" App on your smartphone.
