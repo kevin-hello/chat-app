@@ -254,12 +254,12 @@ export default class Chat extends Component {
         <View style={styles.giftedChat}>
           <GiftedChat
             renderBubble={this.renderBubble.bind(this)}
+            isConnected={this.state.isConnected}
             renderInputToolbar={this.renderInputToolbar.bind(this)}
             messages={this.state.messages}
             onSend={(messages) => this.onSend(messages)}
             renderActions={this.renderCustomActions}
             renderCustomView={this.renderCustomView}
-            isConnected={this.state.isConnected}
             user={{
               _id: this.state.user._id,
               name: this.state.user.name,
@@ -282,8 +282,8 @@ const styles = StyleSheet.create({
   },
   giftedChat: {
     flex: 1,
-    width: "88%",
-    paddingBottom: 10,
+    width: "90%",
+    paddingBottom: 2,
     justifyContent: "center",
     borderRadius: 5,
   },
