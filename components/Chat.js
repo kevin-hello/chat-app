@@ -2,9 +2,12 @@ import React, { Component } from "react";
 import firebase from "firebase";
 import "firebase/firestore";
 import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
-import { View, Platform, KeyboardAvoidingView } from "react-native";
+import { View, StyleSheet, Platform, KeyboardAvoidingView } from "react-native";
 import { AsyncStorage } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
+
+import MapView from "react-native-maps";
+import CustomActions from "./CustomAction";
 
 // firebase config
 const firebaseConfig = {
@@ -30,6 +33,8 @@ export default class Chat extends Component {
         avatar: "",
       },
       isConnected: false,
+      image: null,
+      location: null,
     };
 
     if (!firebase.apps.length) {
@@ -37,44 +42,8 @@ export default class Chat extends Component {
     }
 
     this.referenceChatMessages = firebase.firestore().collection("messages");
+    this.refMsgsUser = null;
   }
-
-  // get messages from async storage
-  getMessages = async () => {
-    let messages = "";
-    try {
-      messages = (await AsyncStorage.getItem("messages")) || [];
-      this.setState({
-        messages: JSON.parse(messages),
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-  //save messages to async storage
-  async saveMessages() {
-    try {
-      await AsyncStorage.setItem(
-        "messages",
-        JSON.stringify(this.state.messages)
-      );
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
-
-  // delete messages from async storage
-  deleteMessages = async () => {
-    try {
-      await AsyncStorage.removeItem("messages");
-      this.setState({
-        messages: [],
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
   componentDidMount() {
     //passes name from text input on Start screen
     let name = this.props.route.params.name;
@@ -126,18 +95,75 @@ export default class Chat extends Component {
       }
     });
   }
-  //appends message objects
-  onSend(messages = []) {
-    this.setState(
-      (previousState) => ({
-        messages: GiftedChat.append(previousState.messages, messages),
-      }),
-      () => {
-        this.saveMessages();
-        this.addMessages();
-      }
-    );
+  // On update, sets the messages' state with the current data
+  onCollectionUpdate = (querySnapshot) => {
+    const messages = [];
+    // go through each document
+    querySnapshot.forEach((doc) => {
+      // get the QueryDocumentSnapshot's data
+      let data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text,
+        createdAt: data.createdAt.toDate(),
+        user: {
+          _id: data.user._id,
+          name: data.user.name,
+          avatar: data.user.avatar,
+        },
+        image: data.image || null,
+        location: data.location || null,
+      });
+    });
+    this.setState({
+      messages: messages,
+    });
+    this.saveMessages();
+  };
+
+  componentWillUnmount() {
+    if (this.state.isConnected) {
+      // stop listening to authentication
+      this.authUnsubscribe();
+      // stop listening for changes
+      this.unsubscribe();
+    }
   }
+  // get messages from async storage
+  getMessages = async () => {
+    let messages = "";
+    try {
+      messages = (await AsyncStorage.getItem("messages")) || [];
+      this.setState({
+        messages: JSON.parse(messages),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+  //save messages to async storage
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem(
+        "messages",
+        JSON.stringify(this.state.messages)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // delete messages from async storage
+  deleteMessages = async () => {
+    try {
+      await AsyncStorage.removeItem("messages");
+      this.setState({
+        messages: [],
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   //Add messages to database
   addMessages() {
     const message = this.state.messages[0];
@@ -147,9 +173,23 @@ export default class Chat extends Component {
       text: message.text || "",
       createdAt: message.createdAt,
       user: this.state.user,
+      image: message.image || "",
+      location: message.location || null,
     });
   }
 
+  //appends message objects
+  onSend(messages = []) {
+    this.setState(
+      (previousState) => ({
+        messages: GiftedChat.append(previousState.messages, messages),
+      }),
+      () => {
+        this.addMessages();
+        this.saveMessages();
+      }
+    );
+  }
   //styles for the bubble messages on the right side
   renderBubble(props) {
     return (
@@ -168,44 +208,34 @@ export default class Chat extends Component {
       />
     );
   }
-  // On update, sets the messages' state with the current data
-  onCollectionUpdate = (querySnapshot) => {
-    const messages = [];
-    // go through each document
-    querySnapshot.forEach((doc) => {
-      // get the QueryDocumentSnapshot's data
-      let data = doc.data();
-      messages.push({
-        _id: data._id,
-        text: data.text,
-        createdAt: data.createdAt.toDate(),
-        user: {
-          _id: data.user._id,
-          name: data.user.name,
-          avatar: data.user.avatar,
-        },
-      });
-    });
-    this.setState({
-      messages: messages,
-    });
-    this.saveMessages();
-  };
-
-  componentWillUnmount() {
-    if (this.state.isConnected) {
-      // stop listening to authentication
-      this.authUnsubscribe();
-      // stop listening for changes
-      this.unsubscribe();
-    }
-  }
 
   renderInputToolbar(props) {
     if (this.state.isConnected == false) {
     } else {
       return <InputToolbar {...props} />;
     }
+  }
+  // Returns mapview when user adds their location to chat message
+  renderCustomView(props) {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  }
+  // action button to access communication features
+  renderCustomActions(props) {
+    return <CustomActions {...props} />;
   }
 
   render() {
@@ -217,24 +247,44 @@ export default class Chat extends Component {
         style={{
           flex: 1,
           backgroundColor: bgColor,
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <GiftedChat
-          renderBubble={this.renderBubble.bind(this)}
-          messages={this.state.messages}
-          onSend={(messages) => this.onSend(messages)}
-          renderInputToolbar={this.renderInputToolbar.bind(this)}
-          isConnected={this.state.isConnected}
-          user={{
-            _id: this.state.user._id,
-            name: this.state.user.name,
-            avatar: this.state.user.avatar,
-          }}
-        />
-        {Platform.OS === "android" ? (
-          <KeyboardAvoidingView behavior="height" />
-        ) : null}
+        <View style={styles.giftedChat}>
+          <GiftedChat
+            renderBubble={this.renderBubble.bind(this)}
+            renderInputToolbar={this.renderInputToolbar.bind(this)}
+            messages={this.state.messages}
+            onSend={(messages) => this.onSend(messages)}
+            renderActions={this.renderCustomActions}
+            renderCustomView={this.renderCustomView}
+            isConnected={this.state.isConnected}
+            user={{
+              _id: this.state.user._id,
+              name: this.state.user.name,
+              avatar: this.state.user.avatar,
+            }}
+          />
+          {Platform.OS === "android" ? (
+            <KeyboardAvoidingView behavior="height" />
+          ) : null}
+        </View>
       </View>
     );
   }
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  giftedChat: {
+    flex: 1,
+    width: "88%",
+    paddingBottom: 10,
+    justifyContent: "center",
+    borderRadius: 5,
+  },
+});
