@@ -16,8 +16,12 @@ A chat app for mobile devices using React Native. The app will provide users wit
 - Node.js
 - React Native
 - Expo
-- Gifted Chat
 - Google Firebase
+
+##### Optional Tools
+
+- Android Studio (Android only)
+- Xcode (iOS only)
 
 #### Installation
 
